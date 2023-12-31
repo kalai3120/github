@@ -250,3 +250,58 @@ Certainly, if you want to troubleshoot uneven session distribution and long-runn
    Adjust the timestamp in the `TO_DATE` function accordingly.
 
 These queries provide insights into session distribution, service configurations, connection affinity, and long-running jobs over a specified time period. Adjust the timestamps in the queries to cover the desired range for your troubleshooting analysis.
+
+
+
+
+##########
+
+To troubleshoot long-running application batch jobs in an Oracle Real Application Clusters (RAC) environment over a particular time period, you can modify the queries to include a timestamp condition. Here's how you can adapt the previous queries:
+
+1. **Identify Long-Running Sessions Across RAC Nodes Over Time:**
+   Check for sessions that have been running for a significant duration across all RAC nodes during a specific time period.
+
+   ```sql
+   SELECT INST_ID, SID, SERIAL#, USERNAME, MACHINE, PROGRAM, SQL_ID, LOGON_TIME, LAST_CALL_ET
+   FROM GV$SESSION
+   WHERE LAST_CALL_ET > <your_threshold_seconds>
+     AND LOGON_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+   Replace `<your_threshold_seconds>` with the duration threshold and adjust the timestamp in the `TO_DATE` function based on your specific time period.
+
+2. **Check SQL Statements Across RAC Nodes Over Time:**
+   Examine SQL statements associated with long-running sessions across all RAC nodes during a specific time period.
+
+   ```sql
+   SELECT INST_ID, SID, SQL_ID, SQL_TEXT
+   FROM GV$SQL
+   WHERE SID IN (<list_of_sids>)
+     AND LAST_ACTIVE_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+   Replace `<list_of_sids>` with the list of session IDs obtained from the previous query and adjust the timestamp in the `TO_DATE` function accordingly.
+
+3. **Investigate Resource Usage Across RAC Nodes Over Time:**
+   Check for high resource usage by long-running sessions across all RAC nodes during a specific time period.
+
+   ```sql
+   SELECT INST_ID, SID, SERIAL#, USERNAME, MACHINE, CPU_TIME, BUFFER_GETS, DISK_READS
+   FROM GV$SESSION
+   WHERE SID IN (<list_of_sids>)
+     AND LOGON_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+4. **Review Execution Plans Across RAC Nodes Over Time:**
+   Examine execution plans for SQL statements associated with long-running sessions across all RAC nodes during a specific time period.
+
+   ```sql
+   SELECT INST_ID, SQL_ID, PLAN_HASH_VALUE, OPERATION, OPTIONS, OBJECT_NAME
+   FROM GV$SQL_PLAN
+   WHERE SQL_ID IN (<list_of_sql_ids>)
+     AND LAST_ACTIVE_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+   Replace `<list_of_sql_ids>` with the SQL IDs obtained from the SQL statement query, and adjust the timestamp in the `TO_DATE` function accordingly.
+
+Adjust the queries as needed for your specific requirements. These modified queries will help you analyze the performance of your application batch jobs in a Real Application Clusters (RAC) environment during a specified time period.
