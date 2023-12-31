@@ -194,3 +194,59 @@ Certainly, if you want to monitor session distribution over a specific time peri
 These queries provide insights into session distribution, service configurations, and connection affinity over a specified time period. Adjust the timestamps in the queries to cover the desired range for your troubleshooting analysis.
 
 
+
+
+
+
+...........
+
+
+Certainly, if you want to troubleshoot uneven session distribution and long-running jobs in Oracle over a specific time period, you can modify the queries to include a timestamp condition. Here's a step-by-step guide:
+
+1. **Check Session Distribution Over Time:**
+   Run a query to check the distribution of sessions across instances over a particular time period.
+
+   ```sql
+   SELECT INST_ID, COUNT(*), MIN(LOGON_TIME), MAX(LOGON_TIME)
+   FROM GV$SESSION
+   WHERE LOGON_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+   GROUP BY INST_ID;
+   ```
+
+   Replace the timestamp in the `TO_DATE` function with your desired time period.
+
+2. **Review Service Information Over Time:**
+   Check the configuration of your services over a specific time period.
+
+   ```sql
+   SELECT SERVICE_NAME, GOAL, DTP, AQ_HA_NOTIFICATIONS
+   FROM GV$ACTIVE_SERVICES
+   WHERE MODIFIED_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+   Adjust the timestamp in the `TO_DATE` function accordingly.
+
+3. **Investigate Connection Affinity Over Time:**
+   Examine sessions for any affinity to specific instances over a time period.
+
+   ```sql
+   SELECT INST_ID, CLIENT_IDENTIFIER, SERVICE_NAME, MODULE, ACTION, LOGON_TIME
+   FROM GV$SESSION
+   WHERE LOGON_TIME BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS');
+   ```
+
+   Adjust the timestamp in the `TO_DATE` function as needed.
+
+4. **Check for Long-Running Jobs Over Time:**
+   Identify long-running jobs and their status over a specific time period.
+
+   ```sql
+   SELECT JOB_NAME, SESSION_ID, STATUS, START_DATE, LAST_DATE
+   FROM DBA_SCHEDULER_JOBS
+   WHERE LAST_DATE BETWEEN TO_DATE('2023-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2023-01-01 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+     AND STATUS = 'RUNNING';
+   ```
+
+   Adjust the timestamp in the `TO_DATE` function accordingly.
+
+These queries provide insights into session distribution, service configurations, connection affinity, and long-running jobs over a specified time period. Adjust the timestamps in the queries to cover the desired range for your troubleshooting analysis.
