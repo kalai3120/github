@@ -173,3 +173,26 @@ ORDER BY archive_count DESC;
 ```
 
 This query uses `V$LOG_HISTORY` instead of `V$ARCHIVE` to associate the session information with the archive logs. Please try running this modified query, and let me know if it resolves the issue.
+
+
+I apologize for the continued inconvenience. It appears that I provided incorrect information in my previous responses. I appreciate your understanding.
+
+In Oracle, there is no direct correlation between the session ID (`SID`) and the archive logs. My earlier attempts to link these might have caused confusion.
+
+To find the users generating more archives, you may need to rely on other indirect methods such as monitoring the `V$ARCHIVE_DEST` view or using Oracle Enterprise Manager (OEM) if available.
+
+Here is a simplified query that checks archive generation by destination, which may give you some insights:
+
+```sql
+SELECT dest_id,
+       dest_name,
+       COUNT(*) AS archive_count
+FROM v$archive_dest ad
+WHERE ad.COMPLETION_TIME >= SYSTIMESTAMP - INTERVAL '4' DAY
+GROUP BY dest_id, dest_name
+ORDER BY archive_count DESC;
+```
+
+This query provides information on archive counts per destination in the last 4 days. Unfortunately, it won't directly attribute archive generation to specific users.
+
+For a more detailed analysis of archive generation by user, you might want to consider leveraging Oracle's diagnostic tools or monitoring solutions that are designed to provide such information. I apologize for any confusion caused by the earlier responses.
