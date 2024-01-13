@@ -115,3 +115,21 @@ ORDER BY archive_count DESC;
 ```
 
 In this version, I've replaced `a.session_id` with `a.sid`. Please try running this query and let me know if it resolves the issue.
+
+
+
+I apologize for the oversight. It seems I provided an incorrect column name. In Oracle, the correct column for the session ID in the `V$ARCHIVE` view is `SESSION_ID`. Here's the corrected query:
+
+```sql
+SELECT s.username,
+       COUNT(*) AS archive_count
+FROM v$session s
+JOIN v$sql q ON s.sql_id = q.sql_id
+JOIN v$archive a ON s.sid = a.session_id
+WHERE s.sql_id IS NOT NULL
+  AND a.COMPLETION_TIME >= SYSTIMESTAMP - INTERVAL '4' DAY
+GROUP BY s.username
+ORDER BY archive_count DESC;
+```
+
+Please try running this corrected query, and it should work without the "sid is invalid identifier" error.
