@@ -152,3 +152,24 @@ ORDER BY archive_count DESC;
 ```
 
 I appreciate your patience. Please try running this corrected query, and it should work without the "sid is invalid identifier" error.
+
+
+
+
+I apologize for the confusion, and I appreciate your patience. It seems there might be a misunderstanding in the available views. In some Oracle versions, the `V$ARCHIVE` view does not directly contain the session information.
+
+Let's modify the query to use the `V$LOG_HISTORY` view, which should provide the necessary information:
+
+```sql
+SELECT s.username,
+       COUNT(*) AS archive_count
+FROM v$session s
+JOIN v$sql q ON s.sql_id = q.sql_id
+JOIN v$log_history lh ON s.sid = lh.session_id
+WHERE s.sql_id IS NOT NULL
+  AND lh.COMPLETION_TIME >= SYSTIMESTAMP - INTERVAL '4' DAY
+GROUP BY s.username
+ORDER BY archive_count DESC;
+```
+
+This query uses `V$LOG_HISTORY` instead of `V$ARCHIVE` to associate the session information with the archive logs. Please try running this modified query, and let me know if it resolves the issue.
