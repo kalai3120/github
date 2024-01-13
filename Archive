@@ -46,3 +46,29 @@ ORDER BY archive_count DESC;
 ```
 
 Adjust the `TO_DATE` function parameters in the `BETWEEN` clause to specify your desired time range. This example assumes a time range between 8:00 AM and 12:00 PM on January 13, 2024. Update the date and time values according to your specific period of interest.
+
+
+
+
+
+
+#####
+
+To specifically focus on archive generation within a particular time period, you can query the `V$ARCHIVE_DEST` and `V$ARCHIVE` views. Here's an example query that provides information about archive generation for a specific time range:
+
+```sql
+SELECT TO_CHAR(completion_time, 'YYYY-MM-DD HH24:MI:SS') AS archive_time,
+       dest_id,
+       dest_name,
+       archived,
+       applied
+FROM v$archive_dest ad
+JOIN v$archive a ON ad.dest_id = a.dest_id
+WHERE completion_time BETWEEN TO_DATE('2024-01-13 08:00:00', 'YYYY-MM-DD HH24:MI:SS') 
+                        AND TO_DATE('2024-01-13 12:00:00', 'YYYY-MM-DD HH24:MI:SS') -- Specify your time range
+ORDER BY completion_time;
+```
+
+Adjust the `TO_DATE` function parameters in the `BETWEEN` clause to specify your desired time range. This query provides details about archive completion time, destination ID, destination name, and the number of archived and applied logs.
+
+Reviewing the results will give you insights into archive generation during the specified time period, helping you identify trends and potential contributors.
