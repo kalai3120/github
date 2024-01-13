@@ -1,0 +1,48 @@
+To find which user is generating more archive logs in an Oracle database, you can query the `V$SESSION` and `V$SQL` views to identify the SQL statements executed by each user. Here's a query that can help you identify the user generating more archive logs:
+
+```sql
+SELECT s.username,
+       s.sid,
+       s.serial#,
+       s.sql_id,
+       s.program,
+       COUNT(*) AS archive_count
+FROM v$session s
+JOIN v$sql q ON s.sql_id = q.sql_id
+WHERE s.sql_id IS NOT NULL
+GROUP BY s.username, s.sid, s.serial#, s.sql_id, s.program
+ORDER BY archive_count DESC;
+```
+
+This query joins the `V$SESSION` and `V$SQL` views based on the `SQL_ID` column and counts the occurrences for each user. It provides information about the username, session ID (SID), serial number, SQL ID, program, and the count of archive log generation.
+
+Inspect the result to identify the user and associated SQL statements contributing to the high number of archive log generation. This information can help you understand which user's activities are causing increased archiving in the Oracle database.
+
+
+
+
+
+
+
+******
+
+
+To narrow down the query to a particular time period, you can add a time-based condition in the `WHERE` clause. Here's an example query that focuses on a specific time period:
+
+```sql
+SELECT s.username,
+       s.sid,
+       s.serial#,
+       s.sql_id,
+       s.program,
+       COUNT(*) AS archive_count
+FROM v$session s
+JOIN v$sql q ON s.sql_id = q.sql_id
+WHERE s.sql_id IS NOT NULL
+  AND s.logon_time BETWEEN TO_DATE('2024-01-13 08:00:00', 'YYYY-MM-DD HH24:MI:SS') 
+                       AND TO_DATE('2024-01-13 12:00:00', 'YYYY-MM-DD HH24:MI:SS') -- Specify your time range
+GROUP BY s.username, s.sid, s.serial#, s.sql_id, s.program
+ORDER BY archive_count DESC;
+```
+
+Adjust the `TO_DATE` function parameters in the `BETWEEN` clause to specify your desired time range. This example assumes a time range between 8:00 AM and 12:00 PM on January 13, 2024. Update the date and time values according to your specific period of interest.
