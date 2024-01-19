@@ -1,0 +1,40 @@
+Certainly, you can use SQL queries to identify and resolve unique constraint violations in Oracle with Attunity replication. Here's a step-by-step guide:
+
+1. **Identify Duplicate Data:**
+   ```sql
+   SELECT * FROM your_table
+   WHERE your_unique_column IN (
+       SELECT your_unique_column
+       FROM your_table
+       GROUP BY your_unique_column
+       HAVING COUNT(your_unique_column) > 1
+   );
+   ```
+   Replace `your_table` and `your_unique_column` with your actual table name and unique column.
+
+2. **Pause Replication:**
+   - Pause or stop the Attunity replication process.
+
+3. **Delete Duplicate Rows:**
+   ```sql
+   DELETE FROM your_table
+   WHERE rowid not in (
+       SELECT MIN(rowid)
+       FROM your_table
+       GROUP BY your_unique_column
+   );
+   ```
+
+4. **Reapply Unique Constraint:**
+   ```sql
+   ALTER TABLE your_table
+   ADD CONSTRAINT your_constraint_name UNIQUE (your_unique_column);
+   ```
+   Replace `your_table`, `your_constraint_name`, and `your_unique_column` with your actual table name, constraint name, and unique column.
+
+5. **Resume Replication:**
+   - Resume or restart the Attunity replication process.
+
+Ensure to replace placeholder values with your actual table and column names. These queries assume that you've identified and decided to remove the duplicate rows. If you prefer to update the duplicates or take a different approach, adjust the queries accordingly.
+
+Always exercise caution when manipulating data and ensure you have proper backups before making significant changes to your database.
