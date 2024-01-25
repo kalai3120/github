@@ -12,4 +12,27 @@ WHERE
   timestamp >= SYSTIMESTAMP - INTERVAL '1' DAY;
 ```
 
+
+To estimate storage for Oracle audit file generation for the last 7 days, you can modify the time range in the WHERE clause of your query. Here's an example:
+
+```sql
+SELECT 
+  ROUND(SUM(EXTRACT(DAY FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '7' DAY)) * 24 * 60 * 60 +
+              EXTRACT(HOUR FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '7' DAY)) * 60 * 60 +
+              EXTRACT(MINUTE FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '7' DAY)) * 60 +
+              EXTRACT(SECOND FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '7' DAY))) / (1024 * 1024), 2) AS total_storage_MB
+FROM 
+  dba_audit_trail
+WHERE 
+  timestamp >= SYSTIMESTAMP - INTERVAL '7' DAY;
+```
+
+This query calculates the storage for the last 7 days by adjusting the time range in the WHERE clause. Adapt it based on your specific requirements and Oracle database version.
+
+
+
+
+
+
+
 This query first converts the TIMESTAMP WITH TIME ZONE to TIMESTAMP using `CAST` and then performs the necessary calculations. Adjust it based on your specific needs and Oracle database version.
