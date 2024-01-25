@@ -1,14 +1,15 @@
-The error `ORA-00932: inconsistent datatypes: expected NUMBER got TIMESTAMP WITH TIME zone` suggests that there's an issue with attempting to perform a mathematical operation (e.g., division) on a TIMESTAMP WITH TIME ZONE data type.
-
-To resolve this, you can modify the query to extract the relevant information from the TIMESTAMP data type and then perform the calculation. For example:
+My apologies for the oversight. To address the error, you can use the `CAST` function to convert the TIMESTAMP WITH TIME ZONE to a TIMESTAMP before extracting the components. Here's an updated query:
 
 ```sql
 SELECT 
-  ROUND(SUM(EXTRACT(DAY FROM timestamp) * 24 * 60 * 60 + EXTRACT(HOUR FROM timestamp) * 60 * 60 + EXTRACT(MINUTE FROM timestamp) * 60 + EXTRACT(SECOND FROM timestamp)) / (1024 * 1024), 2) AS total_storage_MB
+  ROUND(SUM(EXTRACT(DAY FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '1' DAY)) * 24 * 60 * 60 +
+              EXTRACT(HOUR FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '1' DAY)) * 60 * 60 +
+              EXTRACT(MINUTE FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '1' DAY)) * 60 +
+              EXTRACT(SECOND FROM CAST(timestamp AS TIMESTAMP) - (SYSTIMESTAMP - INTERVAL '1' DAY))) / (1024 * 1024), 2) AS total_storage_MB
 FROM 
   dba_audit_trail
 WHERE 
   timestamp >= SYSTIMESTAMP - INTERVAL '1' DAY;
 ```
 
-This modification uses the `EXTRACT` function to convert the TIMESTAMP to seconds and then performs the calculation. Adjust it based on your specific requirements and the structure of your TIMESTAMP data.
+This query first converts the TIMESTAMP WITH TIME ZONE to TIMESTAMP using `CAST` and then performs the necessary calculations. Adjust it based on your specific needs and Oracle database version.
