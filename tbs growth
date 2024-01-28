@@ -1,0 +1,52 @@
+To check tablespace growth in an Oracle database, you can use a query that retrieves information about the tablespaces and their growth over time. Here's an example query:
+
+```sql
+SELECT TABLESPACE_NAME,
+       ROUND(MAX(BYTES) / 1024 / 1024, 2) AS MAX_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / 1024 / 1024, 2) AS USED_SIZE_MB,
+       ROUND(MAX(BYTES_FREE) / 1024 / 1024, 2) AS FREE_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / MAX(BYTES) * 100, 2) AS USED_PERCENTAGE,
+       TO_CHAR(MAX(SNAP_TIME), 'YYYY-MM-DD HH24:MI:SS') AS LATEST_SNAPSHOT_TIME
+FROM DBA_TABLESPACE_USAGE_METRICS
+GROUP BY TABLESPACE_NAME
+ORDER BY TABLESPACE_NAME;
+```
+
+This query utilizes the `DBA_TABLESPACE_USAGE_METRICS` view, which provides information about tablespace usage metrics. The query calculates maximum sizes, used sizes, free sizes, and the percentage of space used for each tablespace. It also includes the timestamp of the latest snapshot for each tablespace.
+
+Please note that you need appropriate privileges to query the `DBA_TABLESPACE_USAGE_METRICS` view. If you don't have those privileges, you may consider using `USER_TABLESPACE_USAGE_METRICS` or `ALL_TABLESPACE_USAGE_METRICS` based on your access level.
+
+
+
+
+
+
+
+
+
+
+
+--------'zzzzzzzzzzz
+
+
+
+If you want to analyze tablespace growth on a month-wise basis, you can modify the query to group the results by month. Here's an example:
+
+```sql
+SELECT TABLESPACE_NAME,
+       TO_CHAR(MAX(SNAP_TIME), 'YYYY-MM') AS MONTH,
+       ROUND(MAX(BYTES) / 1024 / 1024, 2) AS MAX_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / 1024 / 1024, 2) AS USED_SIZE_MB,
+       ROUND(MAX(BYTES_FREE) / 1024 / 1024, 2) AS FREE_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / MAX(BYTES) * 100, 2) AS USED_PERCENTAGE
+FROM DBA_TABLESPACE_USAGE_METRICS
+GROUP BY TABLESPACE_NAME, TO_CHAR(SNAP_TIME, 'YYYY-MM')
+ORDER BY TABLESPACE_NAME, TO_CHAR(SNAP_TIME, 'YYYY-MM');
+```
+
+In this modified query, the `TO_CHAR(SNAP_TIME, 'YYYY-MM')` is used to extract the year and month from the `SNAP_TIME` timestamp. The results are then grouped by both `TABLESPACE_NAME` and the month-year combination.
+
+This will provide you with tablespace growth information on a month-wise basis. Adjust the query according to your specific requirements or any additional details you may need.
+
+
+
