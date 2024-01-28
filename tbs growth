@@ -50,3 +50,24 @@ This will provide you with tablespace growth information on a month-wise basis. 
 
 
 
+‐--###
+
+I apologize for the oversight. If `SNAP_TIME` is not available directly in the `DBA_TABLESPACE_USAGE_METRICS` view, you may need to join it with the `DBA_HIST_SNAPSHOT` view to obtain the timestamp information. Here's an updated query:
+
+```sql
+SELECT TABLESPACE_NAME,
+       TO_CHAR(MAX(SNAP_TIME), 'YYYY-MM') AS MONTH,
+       ROUND(MAX(BYTES) / 1024 / 1024, 2) AS MAX_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / 1024 / 1024, 2) AS USED_SIZE_MB,
+       ROUND(MAX(BYTES_FREE) / 1024 / 1024, 2) AS FREE_SIZE_MB,
+       ROUND(MAX(BYTES - BYTES_FREE) / MAX(BYTES) * 100, 2) AS USED_PERCENTAGE
+FROM DBA_TABLESPACE_USAGE_METRICS M
+JOIN DBA_HIST_SNAPSHOT S ON M.SNAP_ID = S.SNAP_ID
+GROUP BY TABLESPACE_NAME, TO_CHAR(S.BEGIN_INTERVAL_TIME, 'YYYY-MM')
+ORDER BY TABLESPACE_NAME, TO_CHAR(S.BEGIN_INTERVAL_TIME, 'YYYY-MM');
+```
+
+This query joins the `DBA_TABLESPACE_USAGE_METRICS` with `DBA_HIST_SNAPSHOT` using the `SNAP_ID` column. It then extracts the month-year information from `BEGIN_INTERVAL_TIME` of the snapshot. Please adjust the column names based on your database schema if needed.
+
+
+
