@@ -1,17 +1,16 @@
-
-I appreciate your patience. If `SNAP_ID` is not directly available in `DBA_TABLESPACE_USAGE_METRICS`, you might need to use `DBA_HIST_TBSPC_SPACE_USAGE` for historical tablespace information and join it with `DBA_HIST_SNAPSHOT`. Here's an adjusted query:
+To check tablespace growth in an Oracle database, you can use the following query. This query provides information about the current size, used space, and free space for each tablespace:
 
 ```sql
 SELECT TABLESPACE_NAME,
-       TO_CHAR(MAX(BEGIN_INTERVAL_TIME), 'YYYY-MM') AS MONTH,
-       ROUND(MAX(TABLESPACE_SIZE) / 1024 / 1024, 2) AS MAX_SIZE_MB,
-       ROUND(MAX(TABLESPACE_USEDSIZE) / 1024 / 1024, 2) AS USED_SIZE_MB,
-       ROUND(MAX(TABLESPACE_USEDSIZE - TABLESPACE_FREE) / 1024 / 1024, 2) AS FREE_SIZE_MB,
-       ROUND(MAX((TABLESPACE_USEDSIZE / TABLESPACE_SIZE) * 100), 2) AS USED_PERCENTAGE
-FROM DBA_HIST_TBSPC_SPACE_USAGE U
-JOIN DBA_HIST_SNAPSHOT S ON U.SNAP_ID = S.SNAP_ID
-GROUP BY TABLESPACE_NAME, TO_CHAR(BEGIN_INTERVAL_TIME, 'YYYY-MM')
-ORDER BY TABLESPACE_NAME, TO_CHAR(BEGIN_INTERVAL_TIME, 'YYYY-MM');
+       ROUND(SUM(BYTES) / 1024 / 1024, 2) AS TOTAL_SIZE_MB,
+       ROUND(SUM(BYTES - BYTES_FREE) / 1024 / 1024, 2) AS USED_SIZE_MB,
+       ROUND(SUM(BYTES_FREE) / 1024 / 1024, 2) AS FREE_SIZE_MB,
+       ROUND(SUM(BYTES - BYTES_FREE) / SUM(BYTES) * 100, 2) AS USED_PERCENTAGE
+FROM DBA_TABLESPACE_USAGE_METRICS
+GROUP BY TABLESPACE_NAME
+ORDER BY TABLESPACE_NAME;
 ```
 
-This query assumes that the relevant information is available in `DBA_HIST_TBSPC_SPACE_USAGE`. Adjust the column names based on your database schema if needed.
+This query utilizes the `DBA_TABLESPACE_USAGE_METRICS` view, which provides information about tablespace usage metrics. It calculates the total size, used size, free size, and the percentage of space used for each tablespace. Adjustments may be needed based on your specific Oracle database configuration.
+
+Please ensure that you have the necessary privileges to query the `DBA_TABLESPACE_USAGE_METRICS` view. If you don't have those privileges, you may consider using `USER_TABLESPACE_USAGE_METRICS` or `ALL_TABLESPACE_USAGE_METRICS` based on your access level.
