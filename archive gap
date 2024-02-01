@@ -23,3 +23,36 @@ END;
 Please adapt the `start_date` and `end_date` variables and the file path according to your specific needs. This example assumes a date-based naming convention for archived log files.
 
 Again, be cautious when manually managing archived logs, as the database is designed to handle these tasks automatically in most scenarios. Only perform manual operations when absolutely necessary and with a clear understanding of the consequences.
+
+
+
+
+
+
+----------
+
+It appears that you have examples of Oracle archived log file names with a specific format. If you want to manually register these archived logs, you can use the following PL/SQL block as an example:
+
+```sql
+-- Connect to SQL*Plus or SQLcl as SYSDBA
+CONNECT / AS SYSDBA
+
+-- Manually register the archived log files
+DECLARE
+   archive_log_name_1 VARCHAR2(100) := 'thread_1_seq_366977.3347.1157307641';
+   archive_log_name_2 VARCHAR2(100) := 'thread_1_seq_366978.5206.1157318053';
+BEGIN
+   -- Manually register the first archived log
+   EXECUTE IMMEDIATE 'ALTER SYSTEM ARCHIVE LOG CURRENT';
+   EXECUTE IMMEDIATE 'ALTER DATABASE REGISTER LOGFILE ''' || archive_log_name_1 || '''';
+
+   -- Manually register the second archived log
+   EXECUTE IMMEDIATE 'ALTER SYSTEM ARCHIVE LOG CURRENT';
+   EXECUTE IMMEDIATE 'ALTER DATABASE REGISTER LOGFILE ''' || archive_log_name_2 || '''';
+END;
+/
+```
+
+This PL/SQL block registers the specified archived log files. You should adjust the `archive_log_name_1` and `archive_log_name_2` variables with the actual file names you want to register.
+
+Keep in mind that manually registering archived logs is not a common practice and should be done carefully. It's generally recommended to let Oracle manage the archiving process automatically. If you find yourself needing to manually register logs frequently, consider investigating and addressing the underlying issues causing the need for manual intervention.
