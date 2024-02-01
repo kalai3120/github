@@ -1,0 +1,25 @@
+Manually registering a month's worth of archived logs can be a cumbersome task, as it involves specifying each individual archived log file. Instead, it's generally recommended to let Oracle manage the archiving process automatically. However, if you have a specific need to manually register multiple archived logs, you can use a PL/SQL block with a loop. Here's a simplified example:
+
+```sql
+-- Connect to SQL*Plus or SQLcl as SYSDBA
+CONNECT / AS SYSDBA
+
+-- Variables to hold the start and end dates for the one-month range
+DECLARE
+   start_date DATE := TO_DATE('2024-01-01', 'YYYY-MM-DD');
+   end_date DATE := TO_DATE('2024-01-31', 'YYYY-MM-DD');
+BEGIN
+   -- Loop through each day within the range
+   FOR archive_date IN start_date..end_date
+   LOOP
+      -- Manually register each archived log file for the given date
+      EXECUTE IMMEDIATE 'ALTER SYSTEM ARCHIVE LOG CURRENT';
+      EXECUTE IMMEDIATE 'ALTER DATABASE REGISTER LOGFILE ''/path_to_archived_logs/' || TO_CHAR(archive_date, 'YYYYMMDD') || '_archived_log.arc''';
+   END LOOP;
+END;
+/
+```
+
+Please adapt the `start_date` and `end_date` variables and the file path according to your specific needs. This example assumes a date-based naming convention for archived log files.
+
+Again, be cautious when manually managing archived logs, as the database is designed to handle these tasks automatically in most scenarios. Only perform manual operations when absolutely necessary and with a clear understanding of the consequences.
