@@ -1,0 +1,54 @@
+Performing post-import validations for the entire database after using Oracle Data Pump (impdp) involves a combination of queries and checks. Here are some queries you can use for comprehensive post-import validations:
+
+1. **Check for Errors in Import Log:**
+   ```sql
+   SELECT * FROM DBA_DATAPUMP_JOBS WHERE STATUS = 'NOT RUNNING';
+   ```
+
+2. **Data Integrity Checks (Example for all tables):**
+   ```sql
+   BEGIN
+     FOR t IN (SELECT table_name FROM all_tables WHERE owner = 'YOUR_SCHEMA') LOOP
+       EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || t.table_name || ' WHERE <condition>';
+     END LOOP;
+   END;
+   ```
+
+3. **Constraint Validation (Example for all tables):**
+   ```sql
+   SELECT OWNER, TABLE_NAME, CONSTRAINT_NAME, STATUS
+   FROM DBA_CONSTRAINTS
+   WHERE OWNER = 'YOUR_SCHEMA';
+   ```
+
+4. **Index Verification (Example for all tables):**
+   ```sql
+   SELECT OWNER, TABLE_NAME, INDEX_NAME, STATUS
+   FROM DBA_INDEXES
+   WHERE TABLE_OWNER = 'YOUR_SCHEMA';
+   ```
+
+5. **Data Consistency Checks (Example for related data across tables):**
+   ```sql
+   SELECT COUNT(*)
+   FROM your_related_table1 r1
+   JOIN your_related_table2 r2 ON r1.column = r2.column;
+   ```
+
+6. **Application Functionality Testing (Application-specific queries):**
+   Run queries that simulate critical functions in your application and verify the results.
+
+7. **Performance Testing (Monitor performance metrics):**
+   Use Oracle performance views or tools to monitor key performance indicators.
+
+8. **Backup Verification (Check the status of database backups):**
+   ```sql
+   SELECT * FROM V$BACKUP;
+   ```
+
+9. **Review Import Parameters (Check the import parameters used):**
+   ```sql
+   SELECT * FROM DBA_DATAPUMP_SESSIONS WHERE OWNER = 'YOUR_SCHEMA';
+   ```
+
+These queries provide a starting point for post-import validations across the entire database. Adjust them based on your schema, naming conventions, and specific validation requirements. Always replace placeholder values like 'YOUR_SCHEMA' and '<condition>' with your actual schema name and conditions.
