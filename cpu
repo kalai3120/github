@@ -1,0 +1,20 @@
+In Oracle Database, you can query the `DBA_HIST_OSSTAT` view to retrieve historical operating system statistics, including CPU time. To check the CPU time for the last 2 days with a 15-minute interval, you can use the following query:
+
+```sql
+SELECT
+    TO_CHAR(SAMPLE_TIME, 'YYYY-MM-DD HH24:MI') AS SAMPLE_TIME,
+    VALUE / 100 AS CPU_TIME_PERCENTAGE
+FROM
+    DBA_HIST_OSSTAT
+WHERE
+    STAT_NAME = 'CPU Usage Per Sec'
+    AND SAMPLE_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
+    AND SAMPLE_TIME <= SYSTIMESTAMP
+    AND ROWNUM <= 192 -- (2 days * 24 hours/day * 60 minutes/hour) / 15 minutes/interval
+ORDER BY
+    SAMPLE_TIME;
+```
+
+This query retrieves the CPU usage per second from the `DBA_HIST_OSSTAT` view for the last 2 days, with a 15-minute interval. The `VALUE` is divided by 100 to represent CPU time as a percentage. Adjust the `ROWNUM` condition based on your desired interval.
+
+Please note that accessing historical data may require the Oracle Database Diagnostic Pack license. Ensure you have the necessary privileges to query the `DBA_HIST_OSSTAT` view or consult your database administrator for access.
