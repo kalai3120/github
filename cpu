@@ -1,4 +1,4 @@
-I apologize for any confusion. Let's modify the query to ensure we're using the correct columns and conditions. In Oracle, the statistics related to CPU usage can vary based on the version and platform. Here's an example that should work for Oracle Database 11g and 12c:
+I appreciate your patience. Let's simplify the query and focus on a more common metric. Try using the `LOAD_PROFILE` statistic, which represents the CPU usage in centiseconds. Here's an adjusted query:
 
 ```sql
 SELECT
@@ -9,7 +9,7 @@ FROM
 JOIN
     DBA_HIST_SNAPSHOT s ON os.SNAP_ID = s.SNAP_ID
 WHERE
-    os.STAT_NAME = 'Busy Time (centiseconds)'
+    os.STAT_NAME = 'LOAD_PROFILE'
     AND s.BEGIN_INTERVAL_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
     AND s.BEGIN_INTERVAL_TIME <= SYSTIMESTAMP
     AND ROWNUM <= 192 -- (2 days * 24 hours/day * 60 minutes/hour) / 15 minutes/interval
@@ -17,4 +17,6 @@ ORDER BY
     s.BEGIN_INTERVAL_TIME;
 ```
 
-This query uses the `Busy Time (centiseconds)` statistic for CPU usage and the `BEGIN_INTERVAL_TIME` column for the snapshot timestamp. Please adjust the conditions and statistics based on your specific Oracle Database version and the statistics available in your environment.
+This query uses the `LOAD_PROFILE` statistic, which should be available in most Oracle Database versions. It represents the load on the system, including CPU usage.
+
+Please adjust the query as needed, and ensure that your user has the necessary privileges to query these tables. If the query still returns no rows, it's possible that the specific statistics you're looking for may not be available in your Oracle Database version or that there might be specific configurations affecting the data in your environment.
