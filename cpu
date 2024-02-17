@@ -1,4 +1,4 @@
-I apologize for the confusion. It seems I made an error in my response. The correct column for timestamp in `DBA_HIST_SNAPSHOT` is `BEGIN_INTERVAL_TIME`. Here's the corrected query:
+I apologize for any confusion. Let's modify the query to ensure we're using the correct columns and conditions. In Oracle, the statistics related to CPU usage can vary based on the version and platform. Here's an example that should work for Oracle Database 11g and 12c:
 
 ```sql
 SELECT
@@ -9,7 +9,7 @@ FROM
 JOIN
     DBA_HIST_SNAPSHOT s ON os.SNAP_ID = s.SNAP_ID
 WHERE
-    os.STAT_NAME = 'CPU used by this session'
+    os.STAT_NAME = 'Busy Time (centiseconds)'
     AND s.BEGIN_INTERVAL_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
     AND s.BEGIN_INTERVAL_TIME <= SYSTIMESTAMP
     AND ROWNUM <= 192 -- (2 days * 24 hours/day * 60 minutes/hour) / 15 minutes/interval
@@ -17,4 +17,4 @@ ORDER BY
     s.BEGIN_INTERVAL_TIME;
 ```
 
-This query should now correctly use `BEGIN_INTERVAL_TIME` as the timestamp column. Please adjust the `ROWNUM` condition based on your desired interval. I appreciate your patience, and I hope this resolves the issue.
+This query uses the `Busy Time (centiseconds)` statistic for CPU usage and the `BEGIN_INTERVAL_TIME` column for the snapshot timestamp. Please adjust the conditions and statistics based on your specific Oracle Database version and the statistics available in your environment.
