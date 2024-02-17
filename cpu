@@ -1,20 +1,22 @@
-I apologize for the confusion. It seems that the `SAMPLE_TIME` is not directly available in the `DBA_HIST_OSSTAT` view. Instead, you can use the `SNAP_ID` in conjunction with the `DBA_HIST_SNAPSHOT` view to get the timestamp. Here's an updated query:
+I apologize for the confusion. It appears that I made an error in my previous responses. The `DBA_HIST_OSSTAT` view does not have a direct column named `SAMPLE_TIME`. Instead, we need to use the `DBA_HIST_SNAPSHOT` view to obtain the timestamp associated with each snapshot.
+
+Here's the corrected query:
 
 ```sql
 SELECT
-    TO_CHAR(s.SAMPLE_TIME, 'YYYY-MM-DD HH24:MI') AS SAMPLE_TIME,
+    TO_CHAR(s.SNAP_TIME, 'YYYY-MM-DD HH24:MI') AS SAMPLE_TIME,
     os.VALUE / 100 AS CPU_TIME_PERCENTAGE
 FROM
     DBA_HIST_OSSTAT os
 JOIN
     DBA_HIST_SNAPSHOT s ON os.SNAP_ID = s.SNAP_ID
 WHERE
-    os.STAT_NAME = 'CPU Usage Per Sec'
-    AND s.SAMPLE_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
-    AND s.SAMPLE_TIME <= SYSTIMESTAMP
+    os.STAT_NAME = 'CPU used by this session'
+    AND s.SNAP_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
+    AND s.SNAP_TIME <= SYSTIMESTAMP
     AND ROWNUM <= 192 -- (2 days * 24 hours/day * 60 minutes/hour) / 15 minutes/interval
 ORDER BY
-    s.SAMPLE_TIME;
+    s.SNAP_TIME;
 ```
 
-This query includes the `DBA_HIST_SNAPSHOT` view to associate the `SNAP_ID` with the timestamp. Adjust the `ROWNUM` condition based on your desired interval. Ensure that you have the necessary privileges to query the relevant views or consult your database administrator for access.
+This query uses `SNAP_TIME` from `DBA_HIST_SNAPSHOT` to represent the timestamp associated with each snapshot. Please adjust the `ROWNUM` condition based on your desired interval. I appreciate your understanding, and I hope this resolves the issue.
