@@ -1,22 +1,20 @@
-I appreciate your patience. Let's simplify the query and focus on a more common metric. Try using the `LOAD_PROFILE` statistic, which represents the CPU usage in centiseconds. Here's an adjusted query:
+I apologize for the inconvenience. The availability of specific statistics may vary based on Oracle Database versions and configurations. Let's simplify the query further and focus on a more commonly available metric.
 
 ```sql
 SELECT
-    TO_CHAR(s.BEGIN_INTERVAL_TIME, 'YYYY-MM-DD HH24:MI') AS SAMPLE_TIME,
-    os.VALUE / 100 AS CPU_TIME_PERCENTAGE
+    TO_CHAR(SNAP_TIME, 'YYYY-MM-DD HH24:MI') AS SAMPLE_TIME,
+    VALUE / 100 AS CPU_TIME_PERCENTAGE
 FROM
     DBA_HIST_OSSTAT os
 JOIN
     DBA_HIST_SNAPSHOT s ON os.SNAP_ID = s.SNAP_ID
 WHERE
-    os.STAT_NAME = 'LOAD_PROFILE'
-    AND s.BEGIN_INTERVAL_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
-    AND s.BEGIN_INTERVAL_TIME <= SYSTIMESTAMP
+    os.STAT_NAME = 'BUSY_TIME'
+    AND s.SNAP_TIME >= SYSTIMESTAMP - INTERVAL '2' DAY
+    AND s.SNAP_TIME <= SYSTIMESTAMP
     AND ROWNUM <= 192 -- (2 days * 24 hours/day * 60 minutes/hour) / 15 minutes/interval
 ORDER BY
-    s.BEGIN_INTERVAL_TIME;
+    s.SNAP_TIME;
 ```
 
-This query uses the `LOAD_PROFILE` statistic, which should be available in most Oracle Database versions. It represents the load on the system, including CPU usage.
-
-Please adjust the query as needed, and ensure that your user has the necessary privileges to query these tables. If the query still returns no rows, it's possible that the specific statistics you're looking for may not be available in your Oracle Database version or that there might be specific configurations affecting the data in your environment.
+This query uses the `BUSY_TIME` statistic, which represents the time the CPU spent in busy mode. Please try running this modified query. If it still doesn't return any rows, it might be worth checking the available statistics in your specific Oracle Database version and configuration. You may also want to consult with your database administrator to ensure proper access and visibility into these statistics.
