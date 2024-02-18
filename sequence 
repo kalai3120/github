@@ -1,0 +1,13 @@
+To find the sequence name, owner, and associated table name in an Oracle database, you can use the `all_sequences` view along with `all_tab_columns`. Here's an example query:
+
+```sql
+SELECT seq.sequence_name, seq.sequence_owner, col.table_name
+FROM all_sequences seq
+JOIN all_tab_columns col
+ON seq.sequence_name = col.column_name
+WHERE seq.sequence_owner = 'your_schema';
+```
+
+Replace `'your_schema'` with the actual schema name you are interested in. This query assumes a certain naming convention where the sequence name matches a column name in a table.
+
+Please note that this is based on assumptions about naming conventions and might not work for all cases. If your database has a different naming convention or if sequences are used in a more complex manner, you might need to explore other approaches, review your database documentation, or inspect your application code for more accurate information.
