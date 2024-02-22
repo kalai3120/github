@@ -57,3 +57,120 @@ Assume you have an order ID as the primary key in the `order_details` table.
    Ensure that changes in the `order_status` column are reflected in real-time in both databases.
 
 These queries provide a starting point for checking data consistency. In practice, you would integrate these queries into your monitoring and alerting systems to automate the process and receive notifications when discrepancies are detected. Adjust the queries based on your specific schema and business requirements.
+
+
+
+
+
+#############
+
+
+Certainly, let's explore additional queries and checks you can perform to ensure data consistency in Oracle GoldenGate:
+
+1. **Conflict Resolution:**
+   - Check for any unresolved conflicts in the `ggserr.log`:
+
+    ```sql
+    -- Source database
+    SELECT * FROM source_schema.gg_conflict_table;
+
+    -- Target database
+    SELECT * FROM target_schema.gg_conflict_table;
+    ```
+
+   Examine the `gg_conflict_table` for any unresolved conflicts and address them accordingly.
+
+2. **Network Connectivity:**
+   - Query the GoldenGate status for network-related information:
+
+    ```sql
+    INFO EXTRACT <extract_process_name>, DETAIL
+    INFO REPLICAT <replicat_process_name>, DETAIL
+    ```
+
+   Look for network-related information, such as lag and delays, in the GoldenGate process details.
+
+3. **GoldenGate Process Status:**
+   - Check the status of the GoldenGate processes:
+
+    ```sql
+    STATUS EXTRACT <extract_process_name>;
+    STATUS REPLICAT <replicat_process_name>;
+    ```
+
+   Ensure both extract and replicat processes are running without errors.
+
+4. **Trail File Permissions:**
+   - Verify trail file permissions:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_DATA_FILES WHERE FILE_NAME LIKE '<trail_file_path>';
+    ```
+
+   Check the file permissions for the GoldenGate trail files.
+
+5. **DDL Replication:**
+   - Verify DDL replication status:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_SUPPORTED_COLUMNS WHERE TABLE_NAME = '<table_name>';
+    ```
+
+   Check whether DDL changes for the specified table are supported and replicated.
+
+6. **Timestamp Consistency:**
+   - Ensure consistent timestamps:
+
+    ```sql
+    -- Source and Target
+    SELECT order_id, timestamp_column FROM order_details ORDER BY order_id;
+    ```
+
+   Check if timestamps are consistent between the source and target for critical columns.
+
+7. **Monitoring GoldenGate Metrics:**
+   - Query GoldenGate metrics:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_PERFORMANCE;
+    ```
+
+   Monitor key performance indicators and replication statistics.
+
+8. **Checkpoints and Trails:**
+   - Query GoldenGate checkpoints and trail information:
+
+    ```sql
+    -- Source and Target
+    INFO EXTRACT <extract_process_name>, SHOWCH;
+    INFO REPLICAT <replicat_process_name>, SHOWCH;
+    ```
+
+   Check the checkpoints and trail information for both extract and replicat processes.
+
+9. **Error Handling and Alerting:**
+   - Query for recent errors and alerts:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_ALERTS WHERE TIMESTAMP > SYSTIMESTAMP - INTERVAL '1' DAY;
+    ```
+
+   Review recent alerts and errors for both source and target databases.
+
+10. **Consistency Checks in Applications:**
+    - Perform application-level consistency checks:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM source_schema.related_data
+    MINUS
+    SELECT * FROM target_schema.related_data;
+    ```
+
+   Identify records in related tables that exist in the source but not in the target.
+
+Remember to adapt these queries based on your specific schema and requirements. Regularly execute these checks as part of your monitoring routine to maintain the integrity of Oracle GoldenGate replication.
