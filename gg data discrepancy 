@@ -1,0 +1,59 @@
+Certainly, let's consider a simple example of how you might use SQL queries to check for data discrepancies in the `order_details` table between the source and target databases.
+
+Assume you have an order ID as the primary key in the `order_details` table.
+
+**Example SQL Queries:**
+
+1. **Row Count Comparison:**
+   - To check if the total number of rows matches between the source and target:
+
+    ```sql
+    -- Source database
+    SELECT COUNT(*) FROM source_schema.order_details;
+
+    -- Target database
+    SELECT COUNT(*) FROM target_schema.order_details;
+    ```
+
+   Compare the results of these queries. If the counts differ, it indicates a potential discrepancy.
+
+2. **Data Comparison for a Specific Order:**
+   - To check if the details of a specific order match between the source and target:
+
+    ```sql
+    -- Source database
+    SELECT * FROM source_schema.order_details WHERE order_id = <specific_order_id>;
+
+    -- Target database
+    SELECT * FROM target_schema.order_details WHERE order_id = <specific_order_id>;
+    ```
+
+   Examine the output of these queries to ensure that the data for the specified order is consistent.
+
+3. **Checksum or Hash Comparison:**
+   - Assuming you have a column like `product_details`:
+
+    ```sql
+    -- Source database
+    SELECT MD5(product_details) FROM source_schema.order_details;
+
+    -- Target database
+    SELECT MD5(product_details) FROM target_schema.order_details;
+    ```
+
+   Compare the hash values generated for the `product_details` column to identify any discrepancies.
+
+4. **Compare Specific Columns in Real-Time:**
+   - For checking the `order_status` column in real-time:
+
+    ```sql
+    -- Source database
+    SELECT order_id, order_status FROM source_schema.order_details;
+
+    -- Target database
+    SELECT order_id, order_status FROM target_schema.order_details;
+    ```
+
+   Ensure that changes in the `order_status` column are reflected in real-time in both databases.
+
+These queries provide a starting point for checking data consistency. In practice, you would integrate these queries into your monitoring and alerting systems to automate the process and receive notifications when discrepancies are detected. Adjust the queries based on your specific schema and business requirements.
