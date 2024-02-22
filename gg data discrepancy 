@@ -290,3 +290,118 @@ Certainly, let's consider a few more aspects you can check using SQL queries to 
    Identify and investigate any open transactions that may affect data consistency.
 
 These additional checks provide a comprehensive approach to monitoring and ensuring data consistency in Oracle GoldenGate. Customize and integrate these queries into your regular monitoring routines based on your specific deployment and requirements.
+
+
+
+########
+
+Certainly, here are a few more considerations for checking and ensuring data consistency in Oracle GoldenGate using SQL queries:
+
+1. **Triggers and Constraints:**
+   - Verify the status of triggers and constraints on replicated tables:
+
+    ```sql
+    -- Source and Target
+    SELECT table_name, status FROM all_triggers WHERE table_name = '<table_name>';
+
+    -- Source and Target
+    SELECT table_name, constraint_name, status FROM all_constraints WHERE table_name = '<table_name>';
+    ```
+
+   Ensure that triggers are enabled and constraints are valid on both source and target tables.
+
+2. **Replication Lag Monitoring:**
+   - Monitor replication lag for specific tables:
+
+    ```sql
+    -- Source and Target
+    SELECT table_name, current_position - min_position AS replication_lag
+    FROM DBA_CAPTURE WHERE CAPTURE_NAME = '<capture_process_name>';
+    ```
+
+   Check for replication lag to ensure that changes are being applied promptly.
+
+3. **GoldenGate Parameter Settings:**
+   - Review and verify important GoldenGate parameters:
+
+    ```sql
+    -- Source
+    SELECT * FROM V$GG_PARAMETER WHERE PARAMETER_NAME = '<parameter_name>';
+
+    -- Target
+    SELECT * FROM V$GG_PARAMETER WHERE PARAMETER_NAME = '<parameter_name>';
+    ```
+
+   Confirm that critical parameters such as `INTEGRATED_CAPTURE` and `DYNAMIC_RESOLUTION` are configured appropriately.
+
+4. **Database Link Status:**
+   - Check the status of the database link used by GoldenGate:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM ALL_DB_LINKS WHERE DB_LINK = '<database_link_name>';
+    ```
+
+   Ensure that the database link is active and functioning correctly.
+
+5. **GoldenGate Processes' Operating System Information:**
+   - Retrieve information about the operating system processes running GoldenGate:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM V$PROCESS WHERE PROGRAM LIKE '%gg%';
+    ```
+
+   Check the status and resource usage of GoldenGate processes on the operating system.
+
+6. **Trail File Compression:**
+   - Verify if trail files are compressed, and check compression status:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_COMPRESSION WHERE OBJECT_NAME = '<trail_file_name>';
+    ```
+
+   Ensure that trail files are compressed if configured to do so.
+
+7. **Checkpoint Table Status:**
+   - Check the status of the checkpoint table:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_CHECKPOINT_TABLES WHERE TABLE_NAME = '<checkpoint_table_name>';
+    ```
+
+   Confirm the status of the checkpoint table used by GoldenGate.
+
+8. **Parallel Replication:**
+   - Check if parallel replication is configured:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_PARALLEL_SETTINGS WHERE TABLE_NAME = '<table_name>';
+    ```
+
+   Verify whether parallel replication is enabled for specific tables.
+
+9. **GoldenGate Process Resource Usage:**
+   - Monitor resource usage of GoldenGate processes:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM V$PROCESS WHERE PROGRAM LIKE '%gg%' ORDER BY CPU_TIME DESC;
+    ```
+
+   Identify GoldenGate processes with high resource usage.
+
+10. **Data Encryption:**
+    - Verify if data encryption is configured:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_ENCRYPTION WHERE TABLE_NAME = '<table_name>';
+    ```
+
+   Confirm that data encryption settings are as expected.
+
+Customize and execute these queries based on your specific Oracle GoldenGate configuration and requirements. Regularly perform these checks to proactively identify and resolve any issues related to data consistency and replication.
