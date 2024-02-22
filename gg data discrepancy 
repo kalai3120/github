@@ -174,3 +174,119 @@ Certainly, let's explore additional queries and checks you can perform to ensure
    Identify records in related tables that exist in the source but not in the target.
 
 Remember to adapt these queries based on your specific schema and requirements. Regularly execute these checks as part of your monitoring routine to maintain the integrity of Oracle GoldenGate replication.
+
+
+
+
+###########
+
+
+Certainly, let's consider a few more aspects you can check using SQL queries to ensure data consistency in Oracle GoldenGate:
+
+1. **Latency and Lag:**
+   - Check the latency and lag between the source and target databases:
+
+    ```sql
+    -- Source
+    SELECT CURRENT_TIMESTAMP - MAX(timestamp_column) AS source_latency FROM source_schema.order_details;
+
+    -- Target
+    SELECT CURRENT_TIMESTAMP - MAX(timestamp_column) AS target_latency FROM target_schema.order_details;
+    ```
+
+   Compare the latency between the source and target to ensure real-time replication.
+
+2. **Supplemental Logging:**
+   - Ensure supplemental logging is correctly configured:
+
+    ```sql
+    -- Source
+    SELECT supplemental_log_data_pk FROM DBA_LOG_GROUPS WHERE table_name = '<table_name>';
+
+    -- Target
+    SELECT supplemental_log_data_pk FROM DBA_LOG_GROUPS WHERE table_name = '<table_name>';
+    ```
+
+   Verify that supplemental logging is enabled for primary key columns on both source and target tables.
+
+3. **Trail File Size:**
+   - Check the size of the trail files to ensure they are not exceeding expected limits:
+
+    ```sql
+    -- Source and Target
+    SELECT FILE_NAME, BYTES FROM DBA_DATA_FILES WHERE FILE_NAME LIKE '<trail_file_path>%';
+    ```
+
+   Monitor the size of the trail files and adjust configurations if they approach capacity.
+
+4. **DDL Replication Status:**
+   - Check the DDL replication status for all tables:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_SUPPORTED_TABLES;
+    ```
+
+   Ensure that all relevant tables are marked as supported for DDL replication.
+
+5. **Long Transactions:**
+   - Identify and monitor long-running transactions:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_LONG_TRANSACTIONS;
+    ```
+
+   Detect any transactions that are taking an unusually long time to replicate.
+
+6. **Trail File Contents:**
+   - Examine the contents of the trail files:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM V$LOGMNR_CONTENTS WHERE TABLE_NAME = '<table_name>';
+    ```
+
+   Inspect the trail file contents for specific tables to identify any anomalies.
+
+7. **Heartbeat Tables:**
+   - If using heartbeat tables for monitoring, check their status:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM heartbeat_table;
+    ```
+
+   Ensure that heartbeat tables are being updated as expected.
+
+8. **GoldenGate Version:**
+   - Confirm the version of Oracle GoldenGate on both the source and target systems:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM V$VERSION;
+    ```
+
+   Verify that both systems are running compatible versions of Oracle GoldenGate.
+
+9. **Transaction Rollback Monitoring:**
+   - Monitor for transaction rollbacks:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM DBA_GG_TRANSACTION_ROLLBACKS;
+    ```
+
+   Identify any transactions that have been rolled back during the replication process.
+
+10. **Check for Open Transactions:**
+    - Check for open transactions in the source and target databases:
+
+    ```sql
+    -- Source and Target
+    SELECT * FROM V$TRANSACTION;
+    ```
+
+   Identify and investigate any open transactions that may affect data consistency.
+
+These additional checks provide a comprehensive approach to monitoring and ensuring data consistency in Oracle GoldenGate. Customize and integrate these queries into your regular monitoring routines based on your specific deployment and requirements.
