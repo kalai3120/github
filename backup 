@@ -1,0 +1,10 @@
+If you want to see the percentage of completion for all allocated channels in a single output, you can modify the query to include the CHANNEL_ID. Here's an example:
+
+```sql
+SELECT CHANNEL_ID, SID, SERIAL, CONTEXT, SOFAR, TOTALWORK,
+       ROUND(SOFAR/TOTALWORK*100, 2) AS COMPLETION_PERCENT
+FROM V$RMAN_BACKUP_JOB_DETAILS
+WHERE OPERATION = 'BACKUP' AND STATUS = 'RUNNING';
+```
+
+This query includes the `CHANNEL_ID` column, which identifies each allocated channel. It provides a more detailed view of the backup progress across all channels in a running backup job.
