@@ -1,4 +1,4 @@
-Apologies for the confusion. Let's refine the query to ensure compatibility between data types. We'll need to adjust the join conditions to match the appropriate columns. Here's the updated query:
+I see, let's try a different approach. We'll utilize a subquery to match the sequence name with the default value of the column. Here's the revised query:
 
 ```sql
 SELECT 
@@ -10,11 +10,17 @@ SELECT
 FROM 
     all_sequences seq
 JOIN 
-    all_tab_columns col ON instr(col.data_default, seq.sequence_name) > 0
+    all_tab_columns col ON col.table_name = tab.table_name
 JOIN 
     all_tables tab ON col.table_name = tab.table_name
 WHERE 
-    col.data_default LIKE '%.NEXTVAL%';
+    EXISTS (
+        SELECT 1
+        FROM all_tab_columns
+        WHERE data_default LIKE '%' || seq.sequence_name || '.NEXTVAL%'
+        AND table_name = col.table_name
+        AND column_name = col.column_name
+    );
 ```
 
-This revised query should address the data type inconsistency issue by using the `INSTR` function to find the occurrence of the sequence name within the `data_default` column. This way, it ensures compatibility between data types when joining the `all_tab_columns` and `all_sequences` views.
+This query checks for the existence of a subquery where the default value of a column contains the sequence name concatenated with `.NEXTVAL`. This approach should help to avoid data type inconsistency issues.
