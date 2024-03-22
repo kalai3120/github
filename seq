@@ -1,15 +1,9 @@
-If the sequence is present but not being returned by the query, it's possible that there might be some issue with the query itself. Let's refine the query to ensure we're retrieving the sequence column names correctly. We'll directly query the `ALL_TAB_COLUMNS` view to get the sequence column names. Here's the updated query:
+To find the column name of a sequence and the table name in Oracle, you can use the following query:
 
 ```sql
-col SEQUENCE_COLUMN for a30
-
-SELECT
-  COLUMN_NAME AS SEQUENCE_COLUMN
-FROM
-  ALL_TAB_COLUMNS
-WHERE
-  TABLE_NAME IN (SELECT REFERENCED_NAME FROM ALL_DEPENDENCIES WHERE REFERENCED_TYPE = 'SEQUENCE')
-  AND OWNER IN ('PERISCOPE', 'PLUM');
+SELECT sequence_name, table_name, column_name
+FROM all_tab_columns
+WHERE sequence_name IS NOT NULL;
 ```
 
-This query should directly fetch the column names that are referenced as sequences in tables owned by 'PERISCOPE' or 'PLUM'. If the sequence columns exist, this query should return them. If it still doesn't return anything, there might be another issue, such as permissions or data inconsistency, that needs to be addressed.
+This query retrieves the sequence name, table name, and column name from the `all_tab_columns` view where the `sequence_name` is not null. This will give you a list of columns associated with sequences and their respective table names.
