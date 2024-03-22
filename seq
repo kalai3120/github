@@ -1,26 +1,20 @@
-I see, let's try a different approach. We'll utilize a subquery to match the sequence name with the default value of the column. Here's the revised query:
+I see the issue. It seems I mistakenly referenced `tab.table_name` in the `JOIN` condition instead of `col.table_name`. Let me correct that for you:
 
 ```sql
 SELECT 
     seq.sequence_name,
     seq.sequence_owner,
-    tab.table_name,
+    col.table_name,
     tab.owner AS table_owner,
     col.column_name
 FROM 
     all_sequences seq
 JOIN 
-    all_tab_columns col ON col.table_name = tab.table_name
+    all_tab_columns col ON instr(col.data_default, seq.sequence_name) > 0
 JOIN 
     all_tables tab ON col.table_name = tab.table_name
 WHERE 
-    EXISTS (
-        SELECT 1
-        FROM all_tab_columns
-        WHERE data_default LIKE '%' || seq.sequence_name || '.NEXTVAL%'
-        AND table_name = col.table_name
-        AND column_name = col.column_name
-    );
+    col.data_default LIKE '%.NEXTVAL%';
 ```
 
-This query checks for the existence of a subquery where the default value of a column contains the sequence name concatenated with `.NEXTVAL`. This approach should help to avoid data type inconsistency issues.
+This corrected query should resolve the issue by using `col.table_name` to reference the table name in the join condition.
