@@ -1,29 +1,15 @@
-Apologies for the oversight. It seems I misunderstood your requirement. Let me correct that. We need to use aliases for the tables referenced in the query. Here's the revised version:
+If you're only interested in retrieving the sequence column name and not the triggers or tables associated with it, you can simplify the query to directly fetch the column name from the `ALL_TAB_COLUMNS` view. Here's how you can do it:
 
 ```sql
-col TABLE_OWNER for a20
-col SEQUENCE_OWNER for a20
-col TABLE_NAME for a40
 col SEQUENCE_COLUMN for a30
 
 SELECT
-  d.OWNER AS TABLE_OWNER,
-  d.NAME AS TABLE_NAME,
-  d.REFERENCED_OWNER AS SEQUENCE_OWNER,
-  d.REFERENCED_NAME AS SEQUENCE_NAME,
-  c.COLUMN_NAME AS SEQUENCE_COLUMN
+  COLUMN_NAME AS SEQUENCE_COLUMN
 FROM
-  ALL_DEPENDENCIES d
-JOIN
-  ALL_TRIGGERS t
-ON
-  t.TRIGGER_NAME = d.NAME AND t.OWNER = d.OWNER
-JOIN
-  ALL_TAB_COLUMNS c
-ON
-  c.TABLE_NAME = d.REFERENCED_NAME AND c.OWNER = d.REFERENCED_OWNER
+  ALL_TAB_COLUMNS
 WHERE
-  d.TYPE = 'TRIGGER' AND d.REFERENCED_TYPE = 'SEQUENCE' AND d.OWNER IN ('PERISCOPE', 'PLUM');
+  OWNER IN ('PERISCOPE', 'PLUM')
+  AND TABLE_NAME IN (SELECT REFERENCED_NAME FROM ALL_DEPENDENCIES WHERE REFERENCED_TYPE = 'SEQUENCE');
 ```
 
-This should now work without any "invalid identifier" errors.
+This query will retrieve the sequence column names from tables owned by 'PERISCOPE' or 'PLUM' that are referenced as sequences in your database. Adjust the column formatting (`col SEQUENCE_COLUMN for a30` in this case) as needed for your output.
