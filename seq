@@ -1,9 +1,15 @@
-To find the column name of a sequence and the table name in Oracle, you can use the following query:
+Apologies for the confusion. It seems I made another mistake. In Oracle, there isn't a direct column like `identify_column` that indicates whether a column uses a sequence. 
+
+To find columns in tables that use sequences to generate their values, you can look for columns with default values that reference sequences. Here's a query you can use:
 
 ```sql
-SELECT sequence_name, table_name, column_name
+SELECT table_name, column_name
 FROM all_tab_columns
-WHERE sequence_name IS NOT NULL;
+WHERE column_name IN (
+    SELECT column_name
+    FROM all_tab_columns
+    WHERE identity_column = 'YES'
+);
 ```
 
-This query retrieves the sequence name, table name, and column name from the `all_tab_columns` view where the `sequence_name` is not null. This will give you a list of columns associated with sequences and their respective table names.
+This query retrieves the table name and column name from the `all_tab_columns` view where the column name matches those of identity columns. These columns often use sequences to generate their values.
