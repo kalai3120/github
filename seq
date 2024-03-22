@@ -1,20 +1,29 @@
-I see the issue. It seems I mistakenly referenced `tab.table_name` in the `JOIN` condition instead of `col.table_name`. Let me correct that for you:
+To include the sequence column name in the query result, you can join the `ALL_TAB_COLUMNS` view. Here's the modified query:
 
 ```sql
-SELECT 
-    seq.sequence_name,
-    seq.sequence_owner,
-    col.table_name,
-    tab.owner AS table_owner,
-    col.column_name
-FROM 
-    all_sequences seq
-JOIN 
-    all_tab_columns col ON instr(col.data_default, seq.sequence_name) > 0
-JOIN 
-    all_tables tab ON col.table_name = tab.table_name
-WHERE 
-    col.data_default LIKE '%.NEXTVAL%';
+col TABLE_OWNER for a20
+col SEQUENCE_OWNER for a20
+col TABLE_NAME for a40
+col SEQUENCE_COLUMN for a30
+
+SELECT
+  d.TABLE_OWNER,
+  d.TABLE_NAME,
+  d.REFERENCED_OWNER AS SEQUENCE_OWNER,
+  d.REFERENCED_NAME AS SEQUENCE_NAME,
+  c.COLUMN_NAME AS SEQUENCE_COLUMN
+FROM
+  ALL_DEPENDENCIES d
+JOIN
+  ALL_TRIGGERS t
+ON
+  t.TRIGGER_NAME = d.NAME AND t.OWNER = d.OWNER
+JOIN
+  ALL_TAB_COLUMNS c
+ON
+  c.TABLE_NAME = d.REFERENCED_NAME AND c.OWNER = d.REFERENCED_OWNER
+WHERE
+  d.REFERENCED_TYPE = 'SEQUENCE' AND d.TABLE_OWNER IN ('PERISCOPE', 'PLUM');
 ```
 
-This corrected query should resolve the issue by using `col.table_name` to reference the table name in the join condition.
+This query should provide you with the sequence column name along with other information for the specified tables owned by 'PERISCOPE' or 'PLUM'. Adjust the column formatting (`col SEQUENCE_COLUMN for a30` in this case) as needed for your output.
