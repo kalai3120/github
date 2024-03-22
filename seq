@@ -1,4 +1,4 @@
-To find the sequence name, sequence owner, table name, table owner, and sequence column name in Oracle, you can use a combination of data dictionary views. Here's a query to achieve that:
+Apologies for the confusion. Let's refine the query to ensure compatibility between data types. We'll need to adjust the join conditions to match the appropriate columns. Here's the updated query:
 
 ```sql
 SELECT 
@@ -10,11 +10,11 @@ SELECT
 FROM 
     all_sequences seq
 JOIN 
-    all_tab_columns col ON seq.sequence_name = col.sequence_name
+    all_tab_columns col ON instr(col.data_default, seq.sequence_name) > 0
 JOIN 
     all_tables tab ON col.table_name = tab.table_name
 WHERE 
     col.data_default LIKE '%.NEXTVAL%';
 ```
 
-This query retrieves the sequence name (`sequence_name`), sequence owner (`sequence_owner`), table name (`table_name`), table owner (`table_owner`), and sequence column name (`column_name`) by joining the `all_sequences`, `all_tab_columns`, and `all_tables` data dictionary views. The `data_default` column is filtered for values containing `.NEXTVAL` to identify columns that use a sequence as their default value.
+This revised query should address the data type inconsistency issue by using the `INSTR` function to find the occurrence of the sequence name within the `data_default` column. This way, it ensures compatibility between data types when joining the `all_tab_columns` and `all_sequences` views.
