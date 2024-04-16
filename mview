@@ -1,0 +1,27 @@
+To retrieve the names of views and materialized views along with the corresponding table names they reference, you can join the `USER_DEPENDENCIES` view with the `ALL_VIEWS` and `ALL_MVIEWS` views. This will allow you to get the names of the views or materialized views along with the names of the tables they depend on.
+
+Here's how you can do it:
+
+For views:
+```sql
+SELECT d.name AS view_name, v.text AS view_definition, d.referenced_name AS table_name
+FROM user_dependencies d
+JOIN all_views v ON d.name = v.view_name
+WHERE d.type = 'VIEW';
+```
+
+This query retrieves the names of views along with their definitions and the names of the tables they reference.
+
+For materialized views:
+```sql
+SELECT d.name AS mview_name, m.query AS mview_definition, d.referenced_name AS table_name
+FROM user_dependencies d
+JOIN all_mviews m ON d.name = m.mview_name
+WHERE d.type = 'MATERIALIZED VIEW';
+```
+
+This query retrieves the names of materialized views along with their definitions and the names of the tables they reference.
+
+These queries use `USER_DEPENDENCIES` to identify the dependencies of views and materialized views, and then join with `ALL_VIEWS` or `ALL_MVIEWS` to get the view or materialized view definitions. The `referenced_name` column contains the names of the tables referenced by the views or materialized views.
+
+If you're not seeing any rows returned, it's possible that there are no views or materialized views in your schema that reference tables directly.
