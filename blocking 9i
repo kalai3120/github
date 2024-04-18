@@ -1,0 +1,26 @@
+In Oracle 9i, you can use the following query to check for blocking sessions:
+
+```sql
+SELECT
+    s1.username || '@' || s1.machine || ' (SID=' || s1.sid || ')' AS "Blocked User",
+    s2.username || '@' || s2.machine || ' (SID=' || s2.sid || ')' AS "Blocking User",
+    s1.sql_hash_value,
+    s1.status,
+    s1.osuser,
+    s1.machine,
+    s1.module
+FROM
+    v$lock l1,
+    v$session s1,
+    v$lock l2,
+    v$session s2
+WHERE
+    l1.sid = s1.sid
+    AND l2.sid = s2.sid
+    AND l1.BLOCK = 1
+    AND l2.request > 0
+    AND l1.id1 = l2.id1
+    AND l2.id2 = l2.id2;
+```
+
+This query retrieves information about sessions that are blocking other sessions in the database.
