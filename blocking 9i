@@ -24,3 +24,55 @@ WHERE
 ```
 
 This query retrieves information about sessions that are blocking other sessions in the database.
+
+To check for locking in Oracle 9i, you can use the following query:
+
+```sql
+SELECT
+    s.username AS "Username",
+    s.sid AS "Session ID",
+    s.serial# AS "Serial Number",
+    s.osuser AS "OS User",
+    s.machine AS "Machine",
+    s.module AS "Module",
+    s.program AS "Program",
+    l.type AS "Lock Type",
+    l.lmode AS "Lock Mode",
+    l.request AS "Request",
+    o.object_name AS "Object Name"
+FROM
+    v$lock l
+    JOIN v$session s ON l.sid = s.sid
+    LEFT JOIN dba_objects o ON l.id1 = o.object_id
+WHERE
+    l.type <> 'MR'
+    AND l.type <> 'AE';
+```
+
+This query retrieves information about sessions that are holding locks in the database, including details about the lock type, lock mode, requested mode, and the object name if applicable.
+
+In Oracle 9i, you can use the following query to check for both blocking and locking sessions:
+
+```sql
+SELECT
+    s1.username || '@' || s1.machine || ' (SID=' || s1.sid || ')' AS "Session",
+    s1.osuser,
+    s1.module,
+    s1.status,
+    l1.type AS "Lock Type",
+    l1.id1,
+    l1.id2,
+    l1.request,
+    l1.block
+FROM
+    v$session s1,
+    v$lock l1
+WHERE
+    s1.sid = l1.sid
+    AND (l1.request > 0 OR l1.block = 1);
+```
+
+This query retrieves information about sessions that are either holding locks (locking sessions) or being blocked (blocked sessions) in the database.
+
+
+
