@@ -39,3 +39,14 @@ SELECT * FROM information_schema.processlist WHERE command = 'Query' ORDER BY ti
 ```
 
 By running these queries and analyzing the results, you can troubleshoot MySQL replication lag effectively.
+
+Apologies for the confusion. Let me correct that for you. Here's a query to directly retrieve the replication lag from the replica's status:
+
+```sql
+SELECT 
+    UNIX_TIMESTAMP() - UNIX_TIMESTAMP(last_sql_execution_time) AS replication_delay_seconds 
+FROM 
+    performance_schema.replication_applier_status_by_worker;
+```
+
+This query calculates the replication delay in seconds by subtracting the timestamp of the last SQL execution from the current timestamp. It retrieves this information directly from the `performance_schema.replication_applier_status_by_worker` table, which provides detailed information about the replication process.
