@@ -1,0 +1,12 @@
+If you want to check the number of rows in a table across multiple databases without logging into each database individually, you can use the `information_schema` database. Here's how:
+
+```sql
+SELECT table_schema, table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema IN ('database1', 'database2', 'database3')
+AND table_name = 'your_table_name';
+```
+
+Replace `'database1', 'database2', 'database3'` with the names of the databases you want to query and `'your_table_name'` with the name of the table you want to count the rows for. 
+
+This query will return the number of rows for the specified table in each of the specified databases.
