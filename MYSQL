@@ -50,3 +50,36 @@ FROM
 ```
 
 This query calculates the replication delay in seconds by subtracting the timestamp of the last SQL execution from the current timestamp. It retrieves this information directly from the `performance_schema.replication_applier_status_by_worker` table, which provides detailed information about the replication process.
+
+
+
+####
+
+You can check for long-running queries in MySQL using various methods. Here are a few approaches:
+
+1. **Using Performance Schema**:
+   - Query the `events_statements_summary_by_digest` table in the `performance_schema` database to find queries with high execution times.
+   ```sql
+   SELECT * FROM performance_schema.events_statements_summary_by_digest WHERE sum_timer_wait > <threshold_value> ORDER BY sum_timer_wait DESC;
+   ```
+   Replace `<threshold_value>` with a suitable threshold in microseconds to filter out long-running queries.
+
+2. **Using Slow Query Log**:
+   - Enable the slow query log in your MySQL configuration (`my.cnf` or `my.ini`) and set the `long_query_time` parameter to define the threshold for long-running queries.
+   - MySQL will log queries exceeding the defined threshold into the slow query log file. You can then analyze this log file to identify long-running queries.
+   ```sql
+   SET GLOBAL slow_query_log = 'ON';
+   SET GLOBAL long_query_time = 1; -- Example: Set threshold to 1 second
+   ```
+   The slow query log file location can be found in the MySQL configuration file.
+
+3. **Using Information Schema**:
+   - Query the `information_schema.processlist` table to check for queries currently running on the server. Sort the results by `time` to identify long-running queries.
+   ```sql
+   SELECT * FROM information_schema.processlist WHERE command = 'Query' ORDER BY time;
+   ```
+
+4. **Using MySQL Workbench**:
+   - If you're using MySQL Workbench, you can view and analyze running queries in the "Client Connections" panel. Sort the queries by execution time to identify long-running ones.
+
+Choose the method that best fits your needs and environment to identify and address long-running queries in MySQL effectively.
