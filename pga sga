@@ -1,0 +1,95 @@
+Analyzing and setting the values for SGA and PGA in Oracle Database involves monitoring system performance, understanding workload requirements, and adjusting memory parameters to optimize performance. Here’s a step-by-step guide:
+
+### **1. Analyzing SGA and PGA Usage**
+
+#### **SGA Analysis:**
+
+- **Monitor SGA Usage:**
+  ```sql
+  SELECT component, 
+         current_size / 1024 / 1024 AS current_size_mb,
+         min_size / 1024 / 1024 AS min_size_mb,
+         max_size / 1024 / 1024 AS max_size_mb
+  FROM v$sga_dynamic_components;
+  ```
+
+- **Check SGA Performance:**
+  ```sql
+  SELECT * 
+  FROM v$sga_target_advice;
+  ```
+
+- **Evaluate Buffer Cache Hit Ratio:**
+  ```sql
+  SELECT (1 - (phy.value / (db.block_size * (cache.value))) * 100) AS buffer_cache_hit_ratio
+  FROM v$sysstat phy, v$sysstat cache
+  WHERE phy.name = 'physical reads'
+    AND cache.name = 'db block changes';
+  ```
+
+#### **PGA Analysis:**
+
+- **Monitor PGA Usage:**
+  ```sql
+  SELECT pool, 
+         ROUND((SUM(pga_used_mem) / 1024 / 1024), 2) AS used_mb,
+         ROUND((SUM(pga_alloc_mem) / 1024 / 1024), 2) AS allocated_mb
+  FROM v$pgastat
+  GROUP BY pool;
+  ```
+
+- **Check PGA Performance:**
+  ```sql
+  SELECT * 
+  FROM v$pga_target_advice;
+  ```
+
+- **Evaluate PGA Memory Usage:**
+  ```sql
+  SELECT ROUND(SUM(pga_used_mem) / 1024 / 1024, 2) AS pga_used_mb
+  FROM v$pgastat;
+  ```
+
+### **2. Setting SGA and PGA Values**
+
+#### **Adjusting SGA:**
+
+- **Determine Appropriate Size:**
+  Analyze your database workload and SGA component sizes. You may need to increase SGA size if you observe high cache miss rates or frequent swapping.
+
+- **Set SGA Size:**
+  - **Automatic SGA Management:**
+    ```sql
+    ALTER SYSTEM SET SGA_TARGET = 20G SCOPE=BOTH;
+    ```
+
+  - **Manual SGA Management:**
+    Adjust individual components like buffer cache or shared pool:
+    ```sql
+    ALTER SYSTEM SET DB_CACHE_SIZE = 8G SCOPE=BOTH;
+    ALTER SYSTEM SET SHARED_POOL_SIZE = 4G SCOPE=BOTH;
+    ```
+
+#### **Adjusting PGA:**
+
+- **Determine Appropriate Size:**
+  Analyze PGA usage statistics. If you have high sorting or complex queries, you might need to increase PGA size.
+
+- **Set PGA Size:**
+  - **Set PGA Aggregate Target:**
+    ```sql
+    ALTER SYSTEM SET PGA_AGGREGATE_TARGET = 12G SCOPE=BOTH;
+    ```
+
+  - **Set PGA Aggregate Limit:**
+    ```sql
+    ALTER SYSTEM SET PGA_AGGREGATE_LIMIT = 15G SCOPE=BOTH;
+    ```
+
+### **3. Best Practices**
+
+- **Monitor Regularly:** Continuously monitor the performance and usage of SGA and PGA to ensure that the settings remain optimal as workload patterns change.
+- **Adjust Gradually:** Make incremental adjustments to avoid sudden changes that could impact database stability.
+- **Review Oracle Documentation:** Check Oracle’s best practices and recommendations for specific versions and configurations.
+
+By analyzing current usage and adjusting settings based on workload requirements, you can optimize SGA and PGA to improve overall database performance.
